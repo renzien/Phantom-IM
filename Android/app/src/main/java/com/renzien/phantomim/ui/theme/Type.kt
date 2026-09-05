@@ -2,33 +2,45 @@ package com.renzien.phantomim.ui.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.sp
+import com.renzien.phantomim.R
 
-// Set of Material typography styles to start with
+val PhantomFontFamily = FontFamily(
+    Font(
+        resId = R.font.optima_nova_black,
+        weight = FontWeight.Black
+    )
+)
+
+private val DefaultTypography = Typography()
+
+private fun TextStyle.withPhantomFont(): TextStyle {
+    return copy(
+        fontFamily = PhantomFontFamily,
+        fontWeight = FontWeight.Black
+    )
+}
+
 val Typography = Typography(
-    bodyLarge = TextStyle(
-        fontFamily = FontFamily.Default,
-        fontWeight = FontWeight.Normal,
-        fontSize = 16.sp,
-        lineHeight = 24.sp,
-        letterSpacing = 0.5.sp
-    )
-    /* Other default text styles to override
-    titleLarge = TextStyle(
-        fontFamily = FontFamily.Default,
-        fontWeight = FontWeight.Normal,
-        fontSize = 22.sp,
-        lineHeight = 28.sp,
-        letterSpacing = 0.sp
-    ),
-    labelSmall = TextStyle(
-        fontFamily = FontFamily.Default,
-        fontWeight = FontWeight.Medium,
-        fontSize = 11.sp,
-        lineHeight = 16.sp,
-        letterSpacing = 0.5.sp
-    )
-    */
+    displayLarge = DefaultTypography.displayLarge.withPhantomFont(),
+    displayMedium = DefaultTypography.displayMedium.withPhantomFont(),
+    displaySmall = DefaultTypography.displaySmall.withPhantomFont(),
+
+    headlineLarge = DefaultTypography.headlineLarge.withPhantomFont(),
+    headlineMedium = DefaultTypography.headlineMedium.withPhantomFont(),
+    headlineSmall = DefaultTypography.headlineSmall.withPhantomFont(),
+
+    titleLarge = DefaultTypography.titleLarge.withPhantomFont(),
+    titleMedium = DefaultTypography.titleMedium.withPhantomFont(),
+    titleSmall = DefaultTypography.titleSmall.withPhantomFont(),
+
+    bodyLarge = DefaultTypography.bodyLarge.withPhantomFont(),
+    bodyMedium = DefaultTypography.bodyMedium.withPhantomFont(),
+    bodySmall = DefaultTypography.bodySmall.withPhantomFont(),
+
+    labelLarge = DefaultTypography.labelLarge.withPhantomFont(),
+    labelMedium = DefaultTypography.labelMedium.withPhantomFont(),
+    labelSmall = DefaultTypography.labelSmall.withPhantomFont()
 )
