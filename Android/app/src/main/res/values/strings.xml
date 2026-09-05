@@ -2,4 +2,6 @@
     <string name="app_name">Phantom IM</string>
     <string name="onboarding_title_top">FIND YOUR</string>
     <string name="onboarding_title_bottom">ALLIES</string>
+    <string name="onboarding_get_started">GET STARTED</string>
+    <string name="onboarding_welcome">Welcome to Phantom IM!</string>
 </resources>

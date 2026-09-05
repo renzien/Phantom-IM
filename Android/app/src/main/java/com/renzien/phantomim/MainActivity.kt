@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.ui.Modifier
+import android.widget.Toast
 import com.renzien.phantomim.ui.screens.onboarding.OnboardingScreen
 import com.renzien.phantomim.ui.theme.PhantomIMTheme
 
@@ -22,6 +23,13 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize()
                 ) { innerPadding ->
                     OnboardingScreen(
+                        onGetStartedClick = {
+                            Toast.makeText(
+                                this@MainActivity,
+                                R.string.onboarding_welcome,
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        },
                         modifier = Modifier.padding(innerPadding)
                     )
                 }

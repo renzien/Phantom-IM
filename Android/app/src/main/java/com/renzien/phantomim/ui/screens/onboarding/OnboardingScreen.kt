@@ -25,13 +25,15 @@ import com.renzien.phantomim.R
 import com.renzien.phantomim.ui.components.OnboardingCharacters
 import com.renzien.phantomim.ui.components.PhantomBackground
 import com.renzien.phantomim.ui.components.PhantomLogo
+import com.renzien.phantomim.ui.components.PhantomButton
 import com.renzien.phantomim.ui.theme.PhantomBlack
 import com.renzien.phantomim.ui.theme.PhantomWhite
 
 @Composable
 fun OnboardingScreen(
+    onGetStartedClick: () -> Unit,
     modifier: Modifier = Modifier
-){
+) {
     val titleStyle = MaterialTheme.typography.displaySmall.copy(
         fontSize = 44.sp,
         lineHeight = 48.sp,
@@ -48,7 +50,7 @@ fun OnboardingScreen(
                 .padding(horizontal = 24.dp, vertical = 24.dp)
         ) {
             PhantomLogo(
-                modifier = modifier
+                modifier = Modifier
                     .width(126.dp)
                     .rotate(-6f)
             )
@@ -93,6 +95,12 @@ fun OnboardingScreen(
             )
 
             Spacer(modifier = Modifier.height(24.dp))
+
+            PhantomButton(
+                text = stringResource(R.string.onboarding_get_started),
+                onClick = onGetStartedClick,
+                modifier = Modifier.fillMaxWidth()
+            )
         }
     }
 }
