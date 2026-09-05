@@ -11,6 +11,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import com.renzien.phantomim.ui.components.PhantomAvatar
+import com.renzien.phantomim.ui.theme.PhantomPink
 import androidx.compose.ui.Alignment
 import com.renzien.phantomim.ui.components.PhantomBackground
 import androidx.compose.foundation.layout.width
@@ -30,7 +32,10 @@ class MainActivity : ComponentActivity() {
                     PhantomBackground(
                         modifier = Modifier.padding(innerPadding)
                     ) {
-                        PhantomLogo(
+                        PhantomAvatar(
+                            imageRes = R.drawable.ann,
+                            backgroundColor = PhantomPink,
+                            contentDescription = "Ann",
                             modifier = Modifier
                                 .width(180.dp)
                                 .align(Alignment.Center)
