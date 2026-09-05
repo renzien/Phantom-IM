@@ -7,58 +7,25 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import com.renzien.phantomim.ui.components.PhantomAvatar
-import com.renzien.phantomim.ui.theme.PhantomPink
-import androidx.compose.ui.Alignment
-import com.renzien.phantomim.ui.components.PhantomBackground
-import androidx.compose.foundation.layout.width
-import androidx.compose.ui.unit.dp
-import com.renzien.phantomim.ui.components.PhantomLogo
+import com.renzien.phantomim.ui.screens.onboarding.OnboardingScreen
 import com.renzien.phantomim.ui.theme.PhantomIMTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
         setContent {
             PhantomIMTheme {
                 Scaffold(
                     modifier = Modifier.fillMaxSize()
                 ) { innerPadding ->
-                    PhantomBackground(
+                    OnboardingScreen(
                         modifier = Modifier.padding(innerPadding)
-                    ) {
-                        PhantomAvatar(
-                            imageRes = R.drawable.ann,
-                            backgroundColor = PhantomPink,
-                            contentDescription = "Ann",
-                            modifier = Modifier
-                                .width(180.dp)
-                                .align(Alignment.Center)
-                        )
-                    }
+                    )
                 }
             }
         }
-    }
-}
-
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    PhantomIMTheme {
-        Greeting("Android")
     }
 }

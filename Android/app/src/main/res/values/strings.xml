@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">Phantom IM</string>
+    <string name="onboarding_title_top">FIND YOUR</string>
+    <string name="onboarding_title_bottom">ALLIES</string>
 </resources>
