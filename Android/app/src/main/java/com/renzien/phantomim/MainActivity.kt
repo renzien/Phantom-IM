@@ -11,6 +11,11 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.Alignment
+import com.renzien.phantomim.ui.components.PhantomBackground
+import androidx.compose.foundation.layout.width
+import androidx.compose.ui.unit.dp
+import com.renzien.phantomim.ui.components.PhantomLogo
 import com.renzien.phantomim.ui.theme.PhantomIMTheme
 
 class MainActivity : ComponentActivity() {
@@ -19,11 +24,18 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             PhantomIMTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
+                Scaffold(
+                    modifier = Modifier.fillMaxSize()
+                ) { innerPadding ->
+                    PhantomBackground(
                         modifier = Modifier.padding(innerPadding)
-                    )
+                    ) {
+                        PhantomLogo(
+                            modifier = Modifier
+                                .width(180.dp)
+                                .align(Alignment.Center)
+                        )
+                    }
                 }
             }
         }
