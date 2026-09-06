@@ -48,6 +48,93 @@ fun PhantomTextField(
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default
 ){
     Column(modifier = modifier) {
+        Text(
+            text = label,
+            style = MaterialTheme.typography.labelLarge,
+            color = PhantomWhite,
+            modifier = Modifier
+                .rotate(-2f)
+                .background(PhantomBlack)
+                .padding(horizontal = 8.dp, vertical = 3.dp)
+        )
 
+        Spacer(modifier = Modifier.height(8.dp))
+        CompositionLocalProvider(
+            LocalTextSelectionColors provides TextSelectionColors(
+                handleColor = PhantomBlack,
+                backgroundColor = PhantomYellow.copy(alpha = 0.45f)
+            )
+        ) {
+            BasicTextField(
+                state = state,
+                keyboardOptions = keyboardOptions,
+                lineLimits = TextFieldLineLimits.SingleLine,
+                textStyle = MaterialTheme.typography.bodyLarge.copy(
+                    color = PhantomBlack
+                ),
+                cursorBrush = SolidColor(PhantomBlack),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .heightIn(min = 56.dp)
+                    .drawBehind {
+                        val shadowOffset = 4.dp.toPx()
+
+                        drawRect(
+                            color = PhantomBlack,
+                            topLeft = Offset(
+                                shadowOffset,
+                                shadowOffset
+                            ),
+                            size = size
+                        )
+                    }
+                    .background(PhantomWhite)
+                    .border(width = 3.dp, color = PhantomBlack)
+                    .semantics {
+                        contentDescription = label
+                    },
+                decorator = { innerTextField ->
+                    Box(
+                        modifier = Modifier.padding(12.dp),
+                        contentAlignment = Alignment.CenterStart
+                    ) {
+                        if (state.text.isEmpty()) {
+                            Text(
+                                text = placeholder,
+                                style = MaterialTheme.typography.bodyLarge,
+                                color = PhantomBlack.copy(alpha = 0.55f)
+                            )
+                        }
+
+                        innerTextField()
+                    }
+                }
+            )
+        }
+    }
+}
+
+@Preview(widthDp = 360, heightDp = 200)
+@Composable
+private fun PhantomTextFieldPreview(){
+    val emailState = rememberTextFieldState()
+
+    PhantomIMTheme {
+        PhantomBackground {
+            PhantomTextField(
+                state = emailState,
+                label = stringResource(R.string.auth_email_label),
+                placeholder = stringResource(
+                    R.string.auth_email_placeholder
+                ),
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Email,
+                    imeAction = ImeAction.Done
+                ),
+                modifier = Modifier
+                    .align(Alignment.Center)
+                    .padding(24.dp)
+            )
+        }
     }
 }

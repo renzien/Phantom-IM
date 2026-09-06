@@ -7,6 +7,11 @@
     <string name="onboarding_sign_in">Already have an account? Sign in</string>
     <string name="onboarding_sign_in_message">Welcome back!</string>
 
+    <!--  Email Kolom  -->
     <string name="auth_email_label">EMAIL</string>
     <string name="auth_email_placeholder">you@example.com</string>
+
+    <!--  Login  -->
+    <string name="login_title_top">WELCOME</string>
+    <string name="login_title_bottom">BACK!</string>
 </resources>
