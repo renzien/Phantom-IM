@@ -4,4 +4,6 @@
     <string name="onboarding_title_bottom">ALLIES</string>
     <string name="onboarding_get_started">GET STARTED</string>
     <string name="onboarding_welcome">Welcome to Phantom IM!</string>
+    <string name="onboarding_sign_in">Already have an account? Sign in</string>
+    <string name="onboarding_sign_in_message">Welcome back!</string>
 </resources>

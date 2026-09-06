@@ -30,6 +30,13 @@ class MainActivity : ComponentActivity() {
                                 Toast.LENGTH_SHORT
                             ).show()
                         },
+                        onSignInClick = {
+                            Toast.makeText(
+                                this@MainActivity,
+                                R.string.onboarding_sign_in_message,
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        },
                         modifier = Modifier.padding(innerPadding)
                     )
                 }
