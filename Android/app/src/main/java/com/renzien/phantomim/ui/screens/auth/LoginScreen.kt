@@ -15,10 +15,18 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
@@ -38,12 +46,19 @@ import com.renzien.phantomim.ui.components.PhantomTextField
 import com.renzien.phantomim.ui.theme.PhantomBlack
 import com.renzien.phantomim.ui.theme.PhantomIMTheme
 import com.renzien.phantomim.ui.theme.PhantomWhite
+import com.renzien.phantomim.ui.components.PhantomPasswordField
+import com.renzien.phantomim.ui.components.PhantomButton
+import com.renzien.phantomim.ui.components.PhantomTextButton
+import kotlinx.coroutines.launch
 
 @Composable
 fun LoginScreen(
     emailState: TextFieldState,
+    passwordState: TextFieldState,
+    onSignInClick: () -> Unit,
+    onSignUpClick: () -> Unit,
     modifier: Modifier = Modifier
-){
+) {
     val shadowOffset = with(LocalDensity.current) {
         4.dp.toPx()
     }
@@ -60,57 +75,107 @@ fun LoginScreen(
     )
 
     PhantomBackground(modifier = modifier) {
-        Column(
+        BoxWithConstraints(
             modifier = Modifier
-                .align(Alignment.TopCenter)
-                .widthIn(max = 420.dp)
-                .fillMaxWidth()
+                .fillMaxSize()
                 .imePadding()
-                .verticalScroll(rememberScrollState())
-                .padding(horizontal = 24.dp, vertical = 24.dp)
         ) {
-            PhantomLogo(
-                modifier = Modifier
-                    .width(80.dp)
-                    .rotate(-6f)
-            )
-
-            Spacer(modifier = Modifier.height(32.dp))
+            val availableHeight = maxHeight
 
             Column(
-                modifier = Modifier.rotate(-4f)
+                modifier = Modifier
+                    .align(Alignment.TopCenter)
+                    .widthIn(max = 420.dp)
+                    .fillMaxWidth()
+                    .verticalScroll(rememberScrollState())
+                    .heightIn(min = availableHeight)
+                    .padding(horizontal = 24.dp, vertical = 24.dp),
+                verticalArrangement = Arrangement.SpaceBetween
             ) {
-                Text(
-                    text = stringResource(R.string.login_title_top),
-                    style = titleStyle,
-                    color = PhantomWhite
-                )
+                // Logo, title, and input fields.
+                Column {
+                    PhantomLogo(
+                        modifier = Modifier
+                            .width(80.dp)
+                            .rotate(-6f)
+                    )
 
-                Text(
-                    text = stringResource(R.string.login_title_bottom),
-                    style = titleStyle,
-                    modifier = Modifier
-                        .background(PhantomBlack)
-                        .padding(horizontal = 6.dp, vertical = 2.dp)
-                )
+                    Spacer(modifier = Modifier.height(32.dp))
+
+                    Column(
+                        modifier = Modifier.rotate(-4f)
+                    ) {
+                        Text(
+                            text = stringResource(
+                                R.string.login_title_top
+                            ),
+                            style = titleStyle,
+                            color = PhantomWhite
+                        )
+
+                        Text(
+                            text = stringResource(
+                                R.string.login_title_bottom
+                            ),
+                            style = titleStyle,
+                            color = PhantomWhite,
+                            modifier = Modifier
+                                .background(PhantomBlack)
+                                .padding(
+                                    horizontal = 6.dp,
+                                    vertical = 2.dp
+                                )
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(32.dp))
+
+                    PhantomTextField(
+                        state = emailState,
+                        label = stringResource(
+                            R.string.auth_email_label
+                        ),
+                        placeholder = stringResource(
+                            R.string.auth_email_placeholder
+                        ),
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Email,
+                            imeAction = ImeAction.Next
+                        ),
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
+                    Spacer(modifier = Modifier.height(20.dp))
+
+                    PhantomPasswordField(
+                        state = passwordState,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
+                    Spacer(modifier = Modifier.height(32.dp))
+                }
+
+                // Bottom actions.
+                Column(
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    PhantomButton(
+                        text = stringResource(R.string.login_sign_in),
+                        onClick = onSignInClick,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    PhantomTextButton(
+                        text = stringResource(R.string.login_sign_up),
+                        onClick = onSignUpClick,
+                        modifier = Modifier.align(
+                            Alignment.CenterHorizontally
+                        )
+                    )
+                }
             }
-
-            Spacer(modifier = Modifier.height(32.dp))
-
-            PhantomTextField(
-                state = emailState,
-                label = stringResource(R.string.auth_email_label),
-                placeholder = stringResource(
-                    R.string.auth_email_placeholder
-                ),
-                keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Email,
-                    imeAction = ImeAction.Done
-                ),
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            Spacer(modifier = Modifier.height(24.dp))
         }
     }
 }
@@ -119,11 +184,40 @@ fun LoginScreen(
 @Composable
 private fun LoginScreenPreview() {
     val emailState = rememberTextFieldState()
+    val passwordState = remember { TextFieldState() }
+
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
+
+    val signInMessage = stringResource(
+        R.string.preview_sign_in_message
+    )
+    val signUpMessage = stringResource(
+        R.string.preview_sign_up_message
+    )
 
     PhantomIMTheme {
-        Scaffold { innerPadding ->
+        Scaffold(
+            snackbarHost = {
+                SnackbarHost(
+                    hostState = snackbarHostState,
+                    modifier = Modifier.imePadding()
+                )
+            }
+        ) { innerPadding ->
             LoginScreen(
                 emailState = emailState,
+                passwordState = passwordState,
+                onSignInClick = {
+                    scope.launch {
+                        snackbarHostState.showSnackbar(signInMessage)
+                    }
+                },
+                onSignUpClick = {
+                    scope.launch {
+                        snackbarHostState.showSnackbar(signUpMessage)
+                    }
+                },
                 modifier = Modifier
                     .padding(innerPadding)
                     .consumeWindowInsets(innerPadding)

@@ -14,4 +14,22 @@
     <!--  Login  -->
     <string name="login_title_top">WELCOME</string>
     <string name="login_title_bottom">BACK!</string>
+
+    <!--  Password  -->
+    <string name="auth_password_label">PASSWORD</string>
+    <string name="auth_password_placeholder">Enter your password</string>
+    <string name="auth_show_password">SHOW</string>
+    <string name="auth_hide_password">HIDE</string>
+    <string name="auth_show_password_description">Show password</string>
+    <string name="auth_hide_password_description">Hide password</string>
+
+    <!--  Sign In  -->
+    <string name="login_sign_in">SIGN IN</string>
+    <string name="login_sign_up">Don\'t have an account? Sign up</string>
+    <string name="preview_sign_in_message">SIGN IN pressed.</string>
+    <string name="preview_sign_up_message">SIGN UP pressed.</string>
+
+    <!--  Temporary  -->
+    <string name="auth_sign_in_pending">Sign in will be available soon.</string>
+    <string name="auth_sign_up_pending">Account creation will be available soon.</string>
 </resources>
