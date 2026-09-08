@@ -42,4 +42,15 @@
 
     <string name="signup_create_account">CREATE ACCOUNT</string>
     <string name="signup_sign_in">Already have an account? Sign in</string>
+
+    <!-- Login validation -->
+    <string name="auth_error_email_required">Enter your email address.</string>
+    <string name="auth_error_email_invalid">Enter a valid email address.</string>
+    <string name="auth_error_password_required">Enter your password.</string>
+
+    <!-- Sign up validation -->
+    <string name="auth_error_username_required">Choose a username.</string>
+    <string name="auth_error_username_length">Username must contain 3 to 20 characters.</string>
+    <string name="auth_error_username_characters">Use only letters A-Z, numbers, and underscores.</string>
+    <string name="auth_error_password_length">Password must contain 15 to 128 characters.</string>
 </resources>
