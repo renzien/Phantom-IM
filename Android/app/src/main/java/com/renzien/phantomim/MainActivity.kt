@@ -24,13 +24,10 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize()
                 ) { innerPadding ->
                     PhantomAuthFlow(
-                        onGetStartedClick = {
-                            showMessage(R.string.auth_sign_up_pending)
-                        },
                         onSignInClick = {
                             showMessage(R.string.auth_sign_in_pending)
                         },
-                        onSignUpClick = {
+                        onCreateAccountClick = {
                             showMessage(R.string.auth_sign_up_pending)
                         },
                         modifier = Modifier

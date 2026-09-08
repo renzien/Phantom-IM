@@ -32,4 +32,14 @@
     <!--  Temporary  -->
     <string name="auth_sign_in_pending">Sign in will be available soon.</string>
     <string name="auth_sign_up_pending">Account creation will be available soon.</string>
+
+    <!-- Sign up -->
+    <string name="signup_title_top">CREATE</string>
+    <string name="signup_title_bottom">ACCOUNT</string>
+
+    <string name="auth_username_label">USERNAME</string>
+    <string name="auth_username_placeholder">Choose a username</string>
+
+    <string name="signup_create_account">CREATE ACCOUNT</string>
+    <string name="signup_sign_in">Already have an account? Sign in</string>
 </resources>

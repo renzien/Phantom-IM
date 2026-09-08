@@ -2,8 +2,8 @@ package com.renzien.phantomim.ui.navigation
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.CubicBezierEasing
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.text.input.TextFieldState
@@ -13,30 +13,47 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalFocusManager
 import com.renzien.phantomim.ui.components.PhantomTransition
 import com.renzien.phantomim.ui.screens.auth.LoginScreen
+import com.renzien.phantomim.ui.screens.auth.SignUpScreen
 import com.renzien.phantomim.ui.screens.onboarding.OnboardingScreen
 import kotlinx.coroutines.launch
 
 private enum class AuthScreen {
     Onboarding,
-    Login
+    Login,
+    SignUp
 }
+
+private val AuthBackStackSaver = listSaver<List<AuthScreen>, String>(
+    save = { screens ->
+        screens.map { it.name }
+    },
+    restore = { names ->
+        names.map { AuthScreen.valueOf(it) }
+    }
+)
 
 @Composable
 fun PhantomAuthFlow(
-    onGetStartedClick: () -> Unit,
     onSignInClick: () -> Unit,
-    onSignUpClick: () -> Unit,
+    onCreateAccountClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    var currentScreen by rememberSaveable {
-        mutableStateOf(AuthScreen.Onboarding)
+    var backStack by rememberSaveable(
+        stateSaver = AuthBackStackSaver
+    ) {
+        mutableStateOf(listOf(AuthScreen.Onboarding))
     }
+
+    val currentScreen = backStack.last()
+    val screenStateHolder = rememberSaveableStateHolder()
 
     var isTransitioning by remember {
         mutableStateOf(false)
@@ -55,8 +72,17 @@ fun PhantomAuthFlow(
             return
         }
 
+        val existingIndex = backStack.indexOf(destination)
+
+        // Return to an existing screen or add a new destination.
+        val nextBackStack = if (existingIndex >= 0) {
+            backStack.take(existingIndex + 1)
+        } else {
+            backStack + destination
+        }
+
         isTransitioning = true
-        reverseTransition = destination == AuthScreen.Onboarding
+        reverseTransition = existingIndex >= 0
         focusManager.clearFocus(force = true)
 
         scope.launch {
@@ -75,8 +101,8 @@ fun PhantomAuthFlow(
                     )
                 )
 
-                // Switch screens while fully covered.
-                currentScreen = destination
+                // Update navigation while fully covered.
+                backStack = nextBackStack
 
                 // Match the incoming speed, then slow down.
                 progress.animateTo(
@@ -96,46 +122,69 @@ fun PhantomAuthFlow(
     }
 
     BackHandler(
-        enabled = currentScreen == AuthScreen.Login || isTransitioning
+        enabled = backStack.size > 1 || isTransitioning
     ) {
-        navigateTo(AuthScreen.Onboarding)
+        if (!isTransitioning && backStack.size > 1) {
+            val previousScreen = backStack[backStack.lastIndex - 1]
+            navigateTo(previousScreen)
+        }
     }
 
     Box(
         modifier = modifier.fillMaxSize()
     ) {
-        when (currentScreen) {
-            AuthScreen.Onboarding -> {
-                OnboardingScreen(
-                    onGetStartedClick = {
-                        if (!isTransitioning) {
-                            onGetStartedClick()
+        screenStateHolder.SaveableStateProvider(
+            key = currentScreen.name
+        ) {
+            when (currentScreen) {
+                AuthScreen.Onboarding -> {
+                    OnboardingScreen(
+                        onGetStartedClick = {
+                            navigateTo(AuthScreen.SignUp)
+                        },
+                        onSignInClick = {
+                            navigateTo(AuthScreen.Login)
                         }
-                    },
-                    onSignInClick = {
-                        navigateTo(AuthScreen.Login)
-                    }
-                )
-            }
+                    )
+                }
 
-            AuthScreen.Login -> {
-                val emailState = rememberTextFieldState()
-                val passwordState = remember { TextFieldState() }
+                AuthScreen.Login -> {
+                    val emailState = rememberTextFieldState()
+                    val passwordState = remember { TextFieldState() }
 
-                LoginScreen(
-                    emailState = emailState,
-                    passwordState = passwordState,
-                    onSignInClick = {
-                        if (!isTransitioning) {
-                            onSignInClick()
+                    LoginScreen(
+                        emailState = emailState,
+                        passwordState = passwordState,
+                        onSignInClick = {
+                            if (!isTransitioning) {
+                                onSignInClick()
+                            }
+                        },
+                        onSignUpClick = {
+                            navigateTo(AuthScreen.SignUp)
                         }
-                    },
-                    onSignUpClick = {
-                        if (!isTransitioning) {
-                            onSignUpClick()
+                    )
+                }
+
+                AuthScreen.SignUp -> {
+                    val usernameState = rememberTextFieldState()
+                    val emailState = rememberTextFieldState()
+                    val passwordState = remember { TextFieldState() }
+
+                    SignUpScreen(
+                        usernameState = usernameState,
+                        emailState = emailState,
+                        passwordState = passwordState,
+                        onCreateAccountClick = {
+                            if (!isTransitioning) {
+                                onCreateAccountClick()
+                            }
+                        },
+                        onSignInClick = {
+                            navigateTo(AuthScreen.Login)
                         }
-                    }
-                )
+                    )
+                }
             }
         }
 
