@@ -57,7 +57,8 @@ fun LoginScreen(
     passwordState: TextFieldState,
     onSignInClick: () -> Unit,
     onSignUpClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    isLoading: Boolean = false
 ) {
     val shadowOffset = with(LocalDensity.current) {
         4.dp.toPx()
@@ -132,6 +133,7 @@ fun LoginScreen(
 
                     PhantomTextField(
                         state = emailState,
+                        enabled = !isLoading,
                         label = stringResource(
                             R.string.auth_email_label
                         ),
@@ -149,6 +151,7 @@ fun LoginScreen(
 
                     PhantomPasswordField(
                         state = passwordState,
+                        enabled = !isLoading,
                         modifier = Modifier.fillMaxWidth()
                     )
 
@@ -160,8 +163,15 @@ fun LoginScreen(
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     PhantomButton(
-                        text = stringResource(R.string.login_sign_in),
+                        text = stringResource(
+                            if (isLoading) {
+                                R.string.auth_signing_in
+                            } else {
+                                R.string.login_sign_in
+                            }
+                        ),
                         onClick = onSignInClick,
+                        enabled = !isLoading,
                         modifier = Modifier.fillMaxWidth()
                     )
 
@@ -170,6 +180,7 @@ fun LoginScreen(
                     PhantomTextButton(
                         text = stringResource(R.string.login_sign_up),
                         onClick = onSignUpClick,
+                        enabled = !isLoading,
                         modifier = Modifier.align(
                             Alignment.CenterHorizontally
                         )

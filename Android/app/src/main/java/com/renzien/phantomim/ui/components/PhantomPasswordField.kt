@@ -48,7 +48,8 @@ import com.renzien.phantomim.ui.theme.PhantomYellow
 @Composable
 fun PhantomPasswordField(
     state: TextFieldState,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true
 ) {
     var passwordVisible by remember { mutableStateOf(false) }
 
@@ -85,6 +86,7 @@ fun PhantomPasswordField(
         ) {
             BasicSecureTextField(
                 state = state,
+                enabled = enabled,
                 textObfuscationMode = if (passwordVisible) {
                     TextObfuscationMode.Visible
                 } else {
@@ -152,6 +154,7 @@ fun PhantomPasswordField(
                             onClick = {
                                 passwordVisible = !passwordVisible
                             },
+                            enabled = enabled,
                             modifier = Modifier
                                 .heightIn(min = 48.dp)
                                 .semantics {
@@ -159,7 +162,8 @@ fun PhantomPasswordField(
                                 },
                             shape = RectangleShape,
                             colors = ButtonDefaults.textButtonColors(
-                                contentColor = PhantomBlack
+                                contentColor = PhantomBlack,
+                                disabledContentColor = PhantomBlack.copy(alpha = 0.6f)
                             ),
                             contentPadding = PaddingValues(
                                 horizontal = 8.dp,

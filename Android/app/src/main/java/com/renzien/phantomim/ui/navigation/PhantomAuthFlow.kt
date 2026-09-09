@@ -12,6 +12,7 @@ import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material3.Snackbar
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -26,6 +27,7 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalResources
+import androidx.compose.ui.res.stringResource
 import com.renzien.phantomim.ui.components.PhantomTransition
 import com.renzien.phantomim.ui.screens.auth.LoginScreen
 import com.renzien.phantomim.ui.screens.auth.SignUpScreen
@@ -33,6 +35,10 @@ import com.renzien.phantomim.ui.screens.onboarding.OnboardingScreen
 import com.renzien.phantomim.ui.theme.PhantomBlack
 import com.renzien.phantomim.ui.theme.PhantomWhite
 import com.renzien.phantomim.ui.validation.AuthValidator
+import com.renzien.phantomim.R
+import com.renzien.phantomim.ui.components.PhantomTextButton
+import com.renzien.phantomim.ui.viewmodel.auth.AuthError
+import com.renzien.phantomim.ui.viewmodel.auth.AuthUiState
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.Job
 
@@ -53,8 +59,10 @@ private val AuthBackStackSaver = listSaver<List<AuthScreen>, String>(
 
 @Composable
 fun PhantomAuthFlow(
-    onSignInClick: () -> Unit,
+    authState: AuthUiState,
+    onSignInClick: (String, String) -> Unit,
     onCreateAccountClick: () -> Unit,
+    onDismissAuthError: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     var backStack by rememberSaveable(
@@ -89,12 +97,13 @@ fun PhantomAuthFlow(
         errorRes: Int?,
         onValid: () -> Unit
     ) {
-        if (isTransitioning) {
+        if (isTransitioning || authState.isLoading) {
             return
         }
 
-        // Replace any previous validation message.
         validationJob?.cancel()
+        snackbarHostState.currentSnackbarData?.dismiss()
+        onDismissAuthError()
 
         if (errorRes == null) {
             onValid()
@@ -109,11 +118,17 @@ fun PhantomAuthFlow(
     }
 
     fun navigateTo(destination: AuthScreen) {
-        if (isTransitioning || currentScreen == destination) {
+        if (
+            isTransitioning ||
+            authState.isLoading ||
+            currentScreen == destination
+        ) {
             return
         }
 
         validationJob?.cancel()
+        snackbarHostState.currentSnackbarData?.dismiss()
+        onDismissAuthError()
         val existingIndex = backStack.indexOf(destination)
 
         // Return to an existing screen or add a new destination.
@@ -164,9 +179,15 @@ fun PhantomAuthFlow(
     }
 
     BackHandler(
-        enabled = backStack.size > 1 || isTransitioning
+        enabled = backStack.size > 1 ||
+                isTransitioning ||
+                authState.isLoading
     ) {
-        if (!isTransitioning && backStack.size > 1) {
+        if (
+            !isTransitioning &&
+            !authState.isLoading &&
+            backStack.size > 1
+        ) {
             val previousScreen = backStack[backStack.lastIndex - 1]
             navigateTo(previousScreen)
         }
@@ -197,13 +218,21 @@ fun PhantomAuthFlow(
                     LoginScreen(
                         emailState = emailState,
                         passwordState = passwordState,
+                        isLoading = authState.isLoading,
                         onSignInClick = {
                             submitForm(
                                 errorRes = AuthValidator.validateLogin(
                                     email = emailState.text,
                                     password = passwordState.text
                                 ),
-                                onValid = onSignInClick
+                                onValid = {
+                                    focusManager.clearFocus(force = true)
+
+                                    onSignInClick(
+                                        emailState.text.toString(),
+                                        passwordState.text.toString()
+                                    )
+                                }
                             )
                         },
                         onSignUpClick = {
@@ -239,18 +268,56 @@ fun PhantomAuthFlow(
             }
         }
 
-        SnackbarHost(
-            hostState = snackbarHostState,
-            modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .imePadding()
-        ) { data ->
+        val authError = authState.error
+
+        if (authError != null) {
+            val messageRes = when (authError) {
+                AuthError.Network ->
+                    R.string.auth_error_network
+
+                AuthError.TooManyRequests ->
+                    R.string.auth_error_too_many_requests
+
+                AuthError.PasswordRejected ->
+                    R.string.auth_error_password_rejected
+
+                AuthError.SignInFailed ->
+                    R.string.auth_error_sign_in_failed
+
+                AuthError.SignUpFailed ->
+                    R.string.auth_error_sign_up_failed
+            }
+
             Snackbar(
-                snackbarData = data,
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .imePadding(),
+                dismissAction = {
+                    PhantomTextButton(
+                        text = stringResource(R.string.auth_dismiss),
+                        onClick = onDismissAuthError
+                    )
+                },
                 shape = RectangleShape,
                 containerColor = PhantomBlack,
                 contentColor = PhantomWhite
-            )
+            ) {
+                Text(text = stringResource(messageRes))
+            }
+        } else {
+            SnackbarHost(
+                hostState = snackbarHostState,
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .imePadding()
+            ) { data ->
+                Snackbar(
+                    snackbarData = data,
+                    shape = RectangleShape,
+                    containerColor = PhantomBlack,
+                    contentColor = PhantomWhite
+                )
+            }
         }
 
         if (isTransitioning) {

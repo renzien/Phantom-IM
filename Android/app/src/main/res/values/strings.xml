@@ -53,4 +53,15 @@
     <string name="auth_error_username_length">Username must contain 3 to 20 characters.</string>
     <string name="auth_error_username_characters">Use only letters A-Z, numbers, and underscores.</string>
     <string name="auth_error_password_length">Password must contain 15 to 128 characters.</string>
+
+    <!-- Authentication feedback -->
+    <string name="auth_signing_in">SIGNING IN...</string>
+    <string name="auth_error_network">Connection failed. Check your internet connection and try again.</string>
+    <string name="auth_error_too_many_requests">Too many attempts. Please try again later.</string>
+    <string name="auth_error_password_rejected">Your password does not meet the password requirements.</string>
+    <string name="auth_error_sign_in_failed">Unable to sign in. Check your email and password, then try again.</string>
+    <string name="auth_error_sign_up_failed">Unable to create an account. Check your details or try signing in.</string>
+    <string name="auth_dismiss">DISMISS</string>
+    <string name="auth_signed_in">SIGNED IN</string>
+    <string name="auth_sign_out">SIGN OUT</string>
 </resources>

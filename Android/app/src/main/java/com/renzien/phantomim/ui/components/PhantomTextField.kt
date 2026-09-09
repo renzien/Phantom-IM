@@ -45,8 +45,9 @@ fun PhantomTextField(
     label: String,
     placeholder: String,
     modifier: Modifier = Modifier,
-    keyboardOptions: KeyboardOptions = KeyboardOptions.Default
-){
+    keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
+    enabled: Boolean = true
+) {
     Column(modifier = modifier) {
         Text(
             text = label,
@@ -67,6 +68,7 @@ fun PhantomTextField(
         ) {
             BasicTextField(
                 state = state,
+                enabled = enabled,
                 keyboardOptions = keyboardOptions,
                 lineLimits = TextFieldLineLimits.SingleLine,
                 textStyle = MaterialTheme.typography.bodyLarge.copy(
