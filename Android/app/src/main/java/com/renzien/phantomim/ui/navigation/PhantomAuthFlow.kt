@@ -61,7 +61,7 @@ private val AuthBackStackSaver = listSaver<List<AuthScreen>, String>(
 fun PhantomAuthFlow(
     authState: AuthUiState,
     onSignInClick: (String, String) -> Unit,
-    onCreateAccountClick: () -> Unit,
+    onCreateAccountClick: (String, String, String) -> Unit,
     onDismissAuthError: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -250,6 +250,7 @@ fun PhantomAuthFlow(
                         usernameState = usernameState,
                         emailState = emailState,
                         passwordState = passwordState,
+                        isLoading = authState.isLoading,
                         onCreateAccountClick = {
                             submitForm(
                                 errorRes = AuthValidator.validateSignUp(
@@ -257,7 +258,15 @@ fun PhantomAuthFlow(
                                     email = emailState.text,
                                     password = passwordState.text
                                 ),
-                                onValid = onCreateAccountClick
+                                onValid = {
+                                    focusManager.clearFocus(force = true)
+
+                                    onCreateAccountClick(
+                                        usernameState.text.toString(),
+                                        emailState.text.toString(),
+                                        passwordState.text.toString()
+                                    )
+                                }
                             )
                         },
                         onSignInClick = {

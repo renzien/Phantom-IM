@@ -43,8 +43,15 @@ class AuthViewModel(
         }
     }
 
-    fun createAccount(email: String, password: String) {
-        authenticate(defaultError = AuthError.SignUpFailed) {
+    fun createAccount(
+        username: String,
+        email: String,
+        password: String
+    ) {
+        authenticate(
+            defaultError = AuthError.SignUpFailed,
+            initialUsername = username.trim()
+        ) {
             repository.createAccount(
                 email = email,
                 password = password
@@ -78,7 +85,8 @@ class AuthViewModel(
         _uiState.update {
             it.copy(
                 isSavingProfile = true,
-                profileSaveError = null
+                profileSaveError = null,
+                usernameDraft = cleanUsername
             )
         }
 
@@ -210,6 +218,7 @@ class AuthViewModel(
 
     private fun authenticate(
         defaultError: AuthError,
+        initialUsername: String? = null,
         action: suspend () -> Unit
     ) {
         if (
@@ -229,10 +238,16 @@ class AuthViewModel(
 
                 val userId = checkNotNull(repository.currentUserId)
 
-                _uiState.update {
-                    it.copy(userId = userId)
-                }
-                loadProfile()
+                _uiState.value = AuthUiState(
+                    isLoading = true,
+                    userId = userId,
+                    profileStatus = if (initialUsername == null) {
+                        ProfileStatus.NotLoaded
+                    } else {
+                        ProfileStatus.Missing
+                    },
+                    usernameDraft = initialUsername.orEmpty()
+                )
             } catch (error: CancellationException) {
                 throw error
             } catch (error: Exception) {
@@ -252,10 +267,18 @@ class AuthViewModel(
                 _uiState.update {
                     it.copy(error = authError)
                 }
+
+                return@launch
             } finally {
                 _uiState.update {
                     it.copy(isLoading = false)
                 }
+            }
+
+            if (initialUsername == null) {
+                loadProfile()
+            } else {
+                completeProfile(initialUsername)
             }
         }
     }

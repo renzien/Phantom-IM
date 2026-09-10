@@ -32,5 +32,6 @@ data class AuthUiState(
     val profileStatus: ProfileStatus = ProfileStatus.NotLoaded,
     val profile: UserProfile? = null,
     val isSavingProfile: Boolean = false,
-    val profileSaveError: ProfileSaveError? = null
+    val profileSaveError: ProfileSaveError? = null,
+    val usernameDraft: String = ""
 )

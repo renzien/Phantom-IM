@@ -59,7 +59,8 @@ fun SignUpScreen(
     passwordState: TextFieldState,
     onCreateAccountClick: () -> Unit,
     onSignInClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    isLoading: Boolean = false
 ) {
     val shadowOffset = with(LocalDensity.current) {
         4.dp.toPx()
@@ -127,6 +128,7 @@ fun SignUpScreen(
 
                     PhantomTextField(
                         state = usernameState,
+                        enabled = !isLoading,
                         label = stringResource(R.string.auth_username_label),
                         placeholder = stringResource(
                             R.string.auth_username_placeholder
@@ -143,6 +145,7 @@ fun SignUpScreen(
 
                     PhantomTextField(
                         state = emailState,
+                        enabled = !isLoading,
                         label = stringResource(R.string.auth_email_label),
                         placeholder = stringResource(
                             R.string.auth_email_placeholder
@@ -158,6 +161,7 @@ fun SignUpScreen(
 
                     PhantomPasswordField(
                         state = passwordState,
+                        enabled = !isLoading,
                         modifier = Modifier.fillMaxWidth()
                     )
 
@@ -169,8 +173,15 @@ fun SignUpScreen(
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     PhantomButton(
-                        text = stringResource(R.string.signup_create_account),
+                        text = stringResource(
+                            if (isLoading) {
+                                R.string.signup_creating_account
+                            } else {
+                                R.string.signup_create_account
+                            }
+                        ),
                         onClick = onCreateAccountClick,
+                        enabled = !isLoading,
                         modifier = Modifier.fillMaxWidth()
                     )
 
@@ -179,6 +190,7 @@ fun SignUpScreen(
                     PhantomTextButton(
                         text = stringResource(R.string.signup_sign_in),
                         onClick = onSignInClick,
+                        enabled = !isLoading,
                         modifier = Modifier.align(
                             Alignment.CenterHorizontally
                         )

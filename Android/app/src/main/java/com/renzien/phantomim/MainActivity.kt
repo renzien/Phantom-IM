@@ -1,7 +1,6 @@
 package com.renzien.phantomim
 
 import android.os.Bundle
-import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -46,9 +45,7 @@ class MainActivity : ComponentActivity() {
                             PhantomAuthFlow(
                                 authState = authState,
                                 onSignInClick = authViewModel::signIn,
-                                onCreateAccountClick = {
-                                    showMessage(R.string.auth_sign_up_pending)
-                                },
+                                onCreateAccountClick = authViewModel::createAccount,
                                 onDismissAuthError = authViewModel::clearError,
                                 modifier = contentModifier
                             )
@@ -56,7 +53,9 @@ class MainActivity : ComponentActivity() {
 
                         authState.profileStatus == ProfileStatus.Missing -> {
                             key(authState.userId) {
-                                val usernameState = rememberTextFieldState()
+                                val usernameState = rememberTextFieldState(
+                                    initialText = authState.usernameDraft
+                                )
 
                                 CompleteProfileScreen(
                                     usernameState = usernameState,
@@ -85,13 +84,5 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
-    }
-
-    private fun showMessage(messageRes: Int) {
-        Toast.makeText(
-            this,
-            messageRes,
-            Toast.LENGTH_SHORT
-        ).show()
     }
 }

@@ -82,4 +82,6 @@
     <string name="profile_error_username_invalid">Enter a valid username.</string>
     <string name="profile_error_username_taken">This username is already taken. Choose another one.</string>
     <string name="profile_error_save_failed">Unable to save your username. Please try again.</string>
+
+    <string name="signup_creating_account">CREATING ACCOUNT...</string>
 </resources>
