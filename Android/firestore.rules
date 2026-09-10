@@ -1,0 +1,77 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function profilePath(uid) {
+      return /databases/$(database)/documents/users/$(uid);
+    }
+
+    function usernamePath(usernameKey) {
+      let documentId = 'u_' + usernameKey;
+      return /databases/$(database)/documents/usernames/$(documentId);
+    }
+
+    function validProfile(uid) {
+      let data = request.resource.data;
+      let fields = [
+        'uid',
+        'username',
+        'usernameKey',
+        'createdAt'
+      ];
+
+      return data.keys().hasAll(fields)
+        && data.keys().hasOnly(fields)
+        && data.uid == uid
+        && data.username is string
+        && data.username.matches('[A-Za-z0-9_]{3,20}')
+        && data.usernameKey is string
+        && data.usernameKey == data.username.lower()
+        && data.createdAt is timestamp
+        && data.createdAt == request.time;
+    }
+
+    function validUsernameClaim(documentId) {
+      let data = request.resource.data;
+      let profile = getAfter(
+        profilePath(request.auth.uid)
+      ).data;
+
+      return data.keys().hasAll(['uid'])
+        && data.keys().hasOnly(['uid'])
+        && data.uid == request.auth.uid
+        && documentId == 'u_' + profile.usernameKey;
+    }
+
+    match /users/{uid} {
+      allow get: if signedIn();
+
+      allow create: if signedIn()
+        && request.auth.uid == uid
+        && validProfile(uid)
+        && getAfter(
+          usernamePath(request.resource.data.usernameKey)
+        ).data.uid == uid;
+
+      allow list, update, delete: if false;
+    }
+
+    match /usernames/{documentId} {
+      allow get: if signedIn();
+
+      allow create: if signedIn()
+        && validUsernameClaim(documentId);
+
+      allow list, update, delete: if false;
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

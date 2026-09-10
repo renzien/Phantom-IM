@@ -39,6 +39,8 @@ class MainActivity : ComponentActivity() {
 
                     if (authState.userId != null) {
                         AuthSuccessScreen(
+                            profileStatus = authState.profileStatus,
+                            onRetryProfileClick = authViewModel::loadProfile,
                             onSignOutClick = authViewModel::signOut,
                             modifier = contentModifier
                         )

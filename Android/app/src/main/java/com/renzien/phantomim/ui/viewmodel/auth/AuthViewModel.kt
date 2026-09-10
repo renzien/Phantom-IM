@@ -6,7 +6,9 @@ import com.google.firebase.FirebaseNetworkException
 import com.google.firebase.FirebaseTooManyRequestsException
 import com.google.firebase.auth.FirebaseAuthWeakPasswordException
 import com.renzien.phantomim.data.repository.AuthRepository
+import com.renzien.phantomim.data.repository.UserRepository
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -14,24 +16,24 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class AuthViewModel(
-    private val repository: AuthRepository = AuthRepository()
+    private val repository: AuthRepository = AuthRepository(),
+    private val userRepository: UserRepository = UserRepository()
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(
-        AuthUiState(
-            userId = repository.currentUserId
-        )
+        AuthUiState(userId = repository.currentUserId)
     )
 
     val uiState: StateFlow<AuthUiState> = _uiState.asStateFlow()
 
-    fun signIn(
-        email: String,
-        password: String
-    ) {
-        authenticate(
-            defaultError = AuthError.SignInFailed
-        ) {
+    private var profileJob: Job? = null
+
+    init {
+        loadProfile()
+    }
+
+    fun signIn(email: String, password: String) {
+        authenticate(defaultError = AuthError.SignInFailed) {
             repository.signIn(
                 email = email,
                 password = password
@@ -39,17 +41,62 @@ class AuthViewModel(
         }
     }
 
-    fun createAccount(
-        email: String,
-        password: String
-    ) {
-        authenticate(
-            defaultError = AuthError.SignUpFailed
-        ) {
+    fun createAccount(email: String, password: String) {
+        authenticate(defaultError = AuthError.SignUpFailed) {
             repository.createAccount(
                 email = email,
                 password = password
             )
+        }
+    }
+
+    fun loadProfile() {
+        val userId = _uiState.value.userId ?: return
+
+        if (_uiState.value.profileStatus == ProfileStatus.Loading) {
+            return
+        }
+
+        _uiState.update {
+            it.copy(
+                profileStatus = ProfileStatus.Loading,
+                profile = null
+            )
+        }
+
+        profileJob = viewModelScope.launch {
+            try {
+                val profile = userRepository.getProfile(userId)
+
+                _uiState.update { currentState ->
+                    // Ignore results from a previous session.
+                    if (currentState.userId != userId) {
+                        currentState
+                    } else {
+                        currentState.copy(
+                            profile = profile,
+                            profileStatus = if (profile == null) {
+                                ProfileStatus.Missing
+                            } else {
+                                ProfileStatus.Ready
+                            }
+                        )
+                    }
+                }
+            } catch (error: CancellationException) {
+                throw error
+            } catch (_: Exception) {
+                _uiState.update { currentState ->
+                    if (currentState.userId != userId) {
+                        currentState
+                    } else {
+                        currentState.copy(
+                            profileStatus = ProfileStatus.Failed,
+                            profile = null
+                        )
+                    }
+                }
+            }
         }
     }
 
@@ -58,14 +105,15 @@ class AuthViewModel(
             return
         }
 
+        profileJob?.cancel()
+        profileJob = null
+
         repository.signOut()
         _uiState.value = AuthUiState()
     }
 
     fun clearError() {
-        _uiState.update { currentState ->
-            currentState.copy(error = null)
-        }
+        _uiState.update { it.copy(error = null) }
     }
 
     private fun authenticate(
@@ -79,11 +127,8 @@ class AuthViewModel(
             return
         }
 
-        _uiState.update { currentState ->
-            currentState.copy(
-                isLoading = true,
-                error = null
-            )
+        _uiState.update {
+            it.copy(isLoading = true, error = null)
         }
 
         viewModelScope.launch {
@@ -92,9 +137,11 @@ class AuthViewModel(
 
                 val userId = checkNotNull(repository.currentUserId)
 
-                _uiState.update { currentState ->
-                    currentState.copy(userId = userId)
+                _uiState.update {
+                    it.copy(userId = userId)
                 }
+
+                loadProfile()
             } catch (error: CancellationException) {
                 throw error
             } catch (error: Exception) {
@@ -111,12 +158,12 @@ class AuthViewModel(
                     else -> defaultError
                 }
 
-                _uiState.update { currentState ->
-                    currentState.copy(error = authError)
+                _uiState.update {
+                    it.copy(error = authError)
                 }
             } finally {
-                _uiState.update { currentState ->
-                    currentState.copy(isLoading = false)
+                _uiState.update {
+                    it.copy(isLoading = false)
                 }
             }
         }

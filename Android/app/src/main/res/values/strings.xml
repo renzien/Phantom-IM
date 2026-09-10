@@ -64,4 +64,10 @@
     <string name="auth_dismiss">DISMISS</string>
     <string name="auth_signed_in">SIGNED IN</string>
     <string name="auth_sign_out">SIGN OUT</string>
+
+    <string name="profile_status_loading">Checking your profile...</string>
+    <string name="profile_status_missing">Your account needs a username.</string>
+    <string name="profile_status_ready">Your profile is ready.</string>
+    <string name="profile_status_failed">Unable to load your profile. Please try again.</string>
+    <string name="profile_retry">RETRY</string>
 </resources>
