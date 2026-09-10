@@ -18,10 +18,19 @@ enum class ProfileStatus {
     Failed
 }
 
+enum class ProfileSaveError {
+    InvalidUsername,
+    UsernameTaken,
+    Network,
+    SaveFailed
+}
+
 data class AuthUiState(
     val isLoading: Boolean = false,
     val userId: String? = null,
     val error: AuthError? = null,
     val profileStatus: ProfileStatus = ProfileStatus.NotLoaded,
-    val profile: UserProfile? = null
+    val profile: UserProfile? = null,
+    val isSavingProfile: Boolean = false,
+    val profileSaveError: ProfileSaveError? = null
 )

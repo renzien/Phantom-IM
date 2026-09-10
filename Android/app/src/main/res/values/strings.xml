@@ -65,9 +65,21 @@
     <string name="auth_signed_in">SIGNED IN</string>
     <string name="auth_sign_out">SIGN OUT</string>
 
+    <!--  Checking Profile  -->
     <string name="profile_status_loading">Checking your profile...</string>
     <string name="profile_status_missing">Your account needs a username.</string>
     <string name="profile_status_ready">Your profile is ready.</string>
     <string name="profile_status_failed">Unable to load your profile. Please try again.</string>
     <string name="profile_retry">RETRY</string>
+
+    <!--  Choose Username  -->
+    <string name="profile_setup_title_top">CHOOSE YOUR</string>
+    <string name="profile_setup_title_bottom">USERNAME</string>
+    <string name="profile_setup_hint">Use 3 to 20 letters, numbers, or underscores.</string>
+    <string name="profile_setup_continue">CONTINUE</string>
+    <string name="profile_setup_saving">SAVING...</string>
+
+    <string name="profile_error_username_invalid">Enter a valid username.</string>
+    <string name="profile_error_username_taken">This username is already taken. Choose another one.</string>
+    <string name="profile_error_save_failed">Unable to save your username. Please try again.</string>
 </resources>

@@ -5,6 +5,8 @@ import androidx.lifecycle.viewModelScope
 import com.google.firebase.FirebaseNetworkException
 import com.google.firebase.FirebaseTooManyRequestsException
 import com.google.firebase.auth.FirebaseAuthWeakPasswordException
+import com.google.firebase.firestore.FirebaseFirestoreException
+import com.renzien.phantomim.data.repository.UsernameTakenException
 import com.renzien.phantomim.data.repository.AuthRepository
 import com.renzien.phantomim.data.repository.UserRepository
 import kotlinx.coroutines.CancellationException
@@ -50,10 +52,97 @@ class AuthViewModel(
         }
     }
 
+    fun completeProfile(username: String) {
+        val currentState = _uiState.value
+        val userId = currentState.userId ?: return
+
+        if (
+            currentState.isLoading ||
+            currentState.isSavingProfile ||
+            currentState.profileStatus != ProfileStatus.Missing
+        ) {
+            return
+        }
+
+        val cleanUsername = username.trim()
+
+        if (!Regex("[A-Za-z0-9_]{3,20}").matches(cleanUsername)) {
+            _uiState.update {
+                it.copy(
+                    profileSaveError = ProfileSaveError.InvalidUsername
+                )
+            }
+            return
+        }
+
+        _uiState.update {
+            it.copy(
+                isSavingProfile = true,
+                profileSaveError = null
+            )
+        }
+
+        viewModelScope.launch {
+            try {
+                userRepository.createProfileIfMissing(
+                    uid = userId,
+                    username = cleanUsername
+                )
+            } catch (error: CancellationException) {
+                throw error
+            } catch (error: Exception) {
+                val saveError = when (error) {
+                    is UsernameTakenException ->
+                        ProfileSaveError.UsernameTaken
+
+                    is FirebaseNetworkException ->
+                        ProfileSaveError.Network
+
+                    is FirebaseFirestoreException -> {
+                        when (error.code) {
+                            FirebaseFirestoreException.Code.UNAVAILABLE,
+                            FirebaseFirestoreException.Code.DEADLINE_EXCEEDED ->
+                                ProfileSaveError.Network
+
+                            else -> ProfileSaveError.SaveFailed
+                        }
+                    }
+
+                    else -> ProfileSaveError.SaveFailed
+                }
+
+                _uiState.update { state ->
+                    if (state.userId == userId) {
+                        state.copy(profileSaveError = saveError)
+                    } else {
+                        state
+                    }
+                }
+
+                return@launch
+            } finally {
+                _uiState.update { state ->
+                    if (state.userId == userId) {
+                        state.copy(isSavingProfile = false)
+                    } else {
+                        state
+                    }
+                }
+            }
+
+            if (_uiState.value.userId == userId) {
+                loadProfile()
+            }
+        }
+    }
+
     fun loadProfile() {
         val userId = _uiState.value.userId ?: return
 
-        if (_uiState.value.profileStatus == ProfileStatus.Loading) {
+        if (
+            _uiState.value.profileStatus == ProfileStatus.Loading ||
+            _uiState.value.isSavingProfile
+        ) {
             return
         }
 
@@ -101,7 +190,10 @@ class AuthViewModel(
     }
 
     fun signOut() {
-        if (_uiState.value.isLoading) {
+        if (
+            _uiState.value.isLoading ||
+            _uiState.value.isSavingProfile
+        ) {
             return
         }
 
@@ -140,7 +232,6 @@ class AuthViewModel(
                 _uiState.update {
                     it.copy(userId = userId)
                 }
-
                 loadProfile()
             } catch (error: CancellationException) {
                 throw error
