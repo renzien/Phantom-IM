@@ -84,4 +84,9 @@
     <string name="profile_error_save_failed">Unable to save your username. Please try again.</string>
 
     <string name="signup_creating_account">CREATING ACCOUNT...</string>
+
+    <string name="home_title">INBOX</string>
+    <string name="home_username">\@%1$s</string>
+    <string name="home_empty_title">NO CONVERSATIONS YET</string>
+    <string name="home_empty_description">Your conversations will appear here.</string>
 </resources>
