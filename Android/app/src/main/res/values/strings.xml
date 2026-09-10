@@ -89,4 +89,18 @@
     <string name="home_username">\@%1$s</string>
     <string name="home_empty_title">NO CONVERSATIONS YET</string>
     <string name="home_empty_description">Your conversations will appear here.</string>
+
+    <!--  Find Allies  -->
+    <string name="find_allies_title">FIND ALLIES</string>
+    <string name="find_allies_placeholder">Enter a username</string>
+    <string name="find_allies_hint">Enter the full username, with or without \@.</string>
+    <string name="find_allies_search">SEARCH</string>
+    <string name="find_allies_searching">SEARCHING...</string>
+    <string name="find_allies_back">BACK TO INBOX</string>
+    <string name="find_allies_result_for">RESULT FOR %1$s</string>
+    <string name="find_allies_found">Account found.</string>
+    <string name="find_allies_not_found_title">NO ALLY FOUND</string>
+    <string name="find_allies_not_found_message">Check the full username and try again.</string>
+    <string name="find_allies_own_account">This is your account. Search for another username.</string>
+    <string name="find_allies_failed">Unable to search right now. Please try again.</string>
 </resources>

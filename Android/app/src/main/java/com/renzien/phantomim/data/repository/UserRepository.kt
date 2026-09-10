@@ -56,6 +56,46 @@ class UserRepository(
         )
     }
 
+    suspend fun findProfileByUsername(
+        username: String
+    ): UserProfile? {
+        val cleanUsername = username
+            .trim()
+            .removePrefix("@")
+
+        require(usernamePattern.matches(cleanUsername)) {
+            "Username must contain 3 to 20 letters, numbers, or underscores."
+        }
+
+        val usernameKey = cleanUsername.lowercase(Locale.ROOT)
+
+        val usernameSnapshot = firestore
+            .collection("usernames")
+            .document("u_$usernameKey")
+            .get(Source.SERVER)
+            .await()
+
+        if (!usernameSnapshot.exists()) {
+            return null
+        }
+
+        val ownerUid = checkNotNull(
+            usernameSnapshot.getString("uid")
+        ) {
+            "Username claim is missing its user ID."
+        }
+
+        val profile = checkNotNull(getProfile(ownerUid)) {
+            "Username claim has no matching user profile."
+        }
+
+        check(profile.usernameKey == usernameKey) {
+            "Username claim does not match the user profile."
+        }
+
+        return profile
+    }
+
     suspend fun createProfileIfMissing(
         uid: String,
         username: String

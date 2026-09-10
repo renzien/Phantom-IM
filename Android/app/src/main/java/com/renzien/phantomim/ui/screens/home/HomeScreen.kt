@@ -32,10 +32,12 @@ import com.renzien.phantomim.ui.components.PhantomLogo
 import com.renzien.phantomim.ui.components.PhantomTextButton
 import com.renzien.phantomim.ui.theme.PhantomBlack
 import com.renzien.phantomim.ui.theme.PhantomWhite
+import com.renzien.phantomim.ui.components.PhantomButton
 
 @Composable
 fun HomeScreen(
     username: String,
+    onFindAlliesClick: () -> Unit,
     onSignOutClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -111,13 +113,25 @@ fun HomeScreen(
                         .padding(vertical = 32.dp)
                 )
 
-                PhantomTextButton(
-                    text = stringResource(R.string.auth_sign_out),
-                    onClick = onSignOutClick,
-                    modifier = Modifier.align(
-                        Alignment.CenterHorizontally
+                Column(
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    PhantomButton(
+                        text = stringResource(R.string.find_allies_title),
+                        onClick = onFindAlliesClick,
+                        modifier = Modifier.fillMaxWidth()
                     )
-                )
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    PhantomTextButton(
+                        text = stringResource(R.string.auth_sign_out),
+                        onClick = onSignOutClick,
+                        modifier = Modifier.align(
+                            Alignment.CenterHorizontally
+                        )
+                    )
+                }
             }
         }
     }

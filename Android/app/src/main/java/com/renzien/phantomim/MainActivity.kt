@@ -20,7 +20,7 @@ import com.renzien.phantomim.ui.navigation.PhantomAuthFlow
 import com.renzien.phantomim.ui.screens.auth.AuthSuccessScreen
 import com.renzien.phantomim.ui.theme.PhantomIMTheme
 import com.renzien.phantomim.ui.viewmodel.auth.AuthViewModel
-import com.renzien.phantomim.ui.screens.home.HomeScreen
+import com.renzien.phantomim.ui.navigation.PhantomMainFlow
 
 class MainActivity : ComponentActivity() {
 
@@ -77,11 +77,13 @@ class MainActivity : ComponentActivity() {
 
                         authState.profileStatus == ProfileStatus.Ready &&
                                 currentProfile != null -> {
-                            HomeScreen(
-                                username = currentProfile.username,
-                                onSignOutClick = authViewModel::signOut,
-                                modifier = contentModifier
-                            )
+                            key(currentProfile.uid) {
+                                PhantomMainFlow(
+                                    profile = currentProfile,
+                                    onSignOutClick = authViewModel::signOut,
+                                    modifier = contentModifier
+                                )
+                            }
                         }
 
                         else -> {
