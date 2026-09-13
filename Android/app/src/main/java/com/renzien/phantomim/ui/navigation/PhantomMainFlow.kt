@@ -21,7 +21,9 @@ fun PhantomMainFlow(
     onSignOutClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val findAlliesViewModel: FindAlliesViewModel = viewModel()
+    val findAlliesViewModel: FindAlliesViewModel = viewModel(
+        key = "find_allies_${profile.uid}"
+    )
 
     val searchState by findAlliesViewModel.uiState
         .collectAsStateWithLifecycle()
@@ -31,6 +33,10 @@ fun PhantomMainFlow(
     }
 
     fun closeSearch() {
+        if (findAlliesViewModel.uiState.value.isAdding) {
+            return
+        }
+
         findAlliesViewModel.reset()
         showFindAllies = false
     }
@@ -49,6 +55,12 @@ fun PhantomMainFlow(
                 findAlliesViewModel.search(
                     username = usernameState.text.toString(),
                     currentUserId = profile.uid
+                )
+            },
+            onAddAllyClick = {
+                findAlliesViewModel.addAlly(
+                    currentUserId = profile.uid,
+                    username = usernameState.text.toString()
                 )
             },
             onBackClick = {

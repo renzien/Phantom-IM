@@ -39,18 +39,27 @@ import com.renzien.phantomim.ui.theme.PhantomBlack
 import com.renzien.phantomim.ui.theme.PhantomWhite
 import com.renzien.phantomim.ui.viewmodel.friends.FindAlliesStatus
 import com.renzien.phantomim.ui.viewmodel.friends.FindAlliesUiState
+import com.renzien.phantomim.ui.viewmodel.friends.AddAllyStatus
 
 @Composable
 fun FindAlliesScreen(
     usernameState: TextFieldState,
     uiState: FindAlliesUiState,
     onSearchClick: () -> Unit,
+    onAddAllyClick: () -> Unit,
     onBackClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val focusManager = LocalFocusManager.current
     val isLoading = uiState.status == FindAlliesStatus.Loading
     val foundProfile = uiState.profile
+
+    val isBusy = isLoading || uiState.isAdding
+
+    val queryMatches = usernameState.text.toString()
+        .trim()
+        .removePrefix("@")
+        .equals(uiState.query, ignoreCase = true)
 
     val messageRes = when (uiState.status) {
         FindAlliesStatus.OwnAccount ->
@@ -86,7 +95,8 @@ fun FindAlliesScreen(
             ) {
                 PhantomTextButton(
                     text = stringResource(R.string.find_allies_back),
-                    onClick = onBackClick
+                    onClick = onBackClick,
+                    enabled = !uiState.isAdding
                 )
 
                 PhantomLogo(
@@ -112,7 +122,7 @@ fun FindAlliesScreen(
 
             PhantomTextField(
                 state = usernameState,
-                enabled = !isLoading,
+                enabled = !isBusy,
                 label = stringResource(R.string.auth_username_label),
                 placeholder = stringResource(
                     R.string.find_allies_placeholder
@@ -143,7 +153,7 @@ fun FindAlliesScreen(
                     focusManager.clearFocus(force = true)
                     onSearchClick()
                 },
-                enabled = !isLoading,
+                enabled = !isBusy,
                 modifier = Modifier.fillMaxWidth()
             )
 
@@ -165,14 +175,65 @@ fun FindAlliesScreen(
                 uiState.status == FindAlliesStatus.Found &&
                 foundProfile != null
             ) {
+                val isAdded =
+                    uiState.addAllyStatus == AddAllyStatus.Added ||
+                            uiState.addAllyStatus == AddAllyStatus.AlreadyAdded
+
+                val descriptionRes = if (!queryMatches) {
+                    R.string.find_allies_search_again
+                } else {
+                    when (uiState.addAllyStatus) {
+                        AddAllyStatus.Idle ->
+                            R.string.find_allies_found
+
+                        AddAllyStatus.Adding ->
+                            R.string.find_allies_adding
+
+                        AddAllyStatus.Added ->
+                            R.string.find_allies_add_success
+
+                        AddAllyStatus.AlreadyAdded ->
+                            R.string.find_allies_already_added
+
+                        AddAllyStatus.NetworkError ->
+                            R.string.auth_error_network
+
+                        AddAllyStatus.Failed ->
+                            R.string.find_allies_add_failed
+                    }
+                }
+
                 PhantomEmptyState(
                     title = stringResource(
                         R.string.home_username,
                         foundProfile.username
                     ),
-                    description = stringResource(
-                        R.string.find_allies_found
+                    description = stringResource(descriptionRes),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .semantics {
+                            liveRegion = LiveRegionMode.Polite
+                        }
+                )
+
+                PhantomButton(
+                    text = stringResource(
+                        when {
+                            uiState.isAdding ->
+                                R.string.find_allies_adding
+
+                            isAdded ->
+                                R.string.find_allies_added
+
+                            else ->
+                                R.string.find_allies_add
+                        }
                     ),
+                    onClick = {
+                        focusManager.clearFocus(force = true)
+                        onAddAllyClick()
+                    },
+                    enabled = !isBusy && queryMatches && !isAdded,
                     modifier = Modifier.fillMaxWidth()
                 )
             }

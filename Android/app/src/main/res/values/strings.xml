@@ -103,4 +103,12 @@
     <string name="find_allies_not_found_message">Check the full username and try again.</string>
     <string name="find_allies_own_account">This is your account. Search for another username.</string>
     <string name="find_allies_failed">Unable to search right now. Please try again.</string>
+
+    <string name="find_allies_add">ADD ALLY</string>
+    <string name="find_allies_adding">ADDING...</string>
+    <string name="find_allies_added">ALLY ADDED</string>
+    <string name="find_allies_add_success">Ally added to your contacts.</string>
+    <string name="find_allies_already_added">This ally is already in your contacts.</string>
+    <string name="find_allies_add_failed">Unable to add this ally. Please try again.</string>
+    <string name="find_allies_search_again">Your search has changed. Tap SEARCH to update the result.</string>
 </resources>

@@ -5,6 +5,8 @@ import androidx.lifecycle.viewModelScope
 import com.google.firebase.FirebaseNetworkException
 import com.google.firebase.firestore.FirebaseFirestoreException
 import com.renzien.phantomim.data.repository.UserRepository
+import com.renzien.phantomim.data.model.AddFriendResult
+import com.renzien.phantomim.data.repository.FriendRepository
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -13,7 +15,9 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 class FindAlliesViewModel(
-    private val repository: UserRepository = UserRepository()
+    private val repository: UserRepository = UserRepository(),
+    private val friendRepository: FriendRepository =
+        FriendRepository()
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(FindAlliesUiState())
@@ -29,10 +33,12 @@ class FindAlliesViewModel(
         username: String,
         currentUserId: String
     ) {
-        if (_uiState.value.status == FindAlliesStatus.Loading) {
+        if (
+            _uiState.value.status == FindAlliesStatus.Loading ||
+            _uiState.value.isAdding
+        ) {
             return
         }
-
         val cleanUsername = username.trim().removePrefix("@")
 
         if (!usernamePattern.matches(cleanUsername)) {
@@ -100,7 +106,84 @@ class FindAlliesViewModel(
         }
     }
 
+    fun addAlly(
+        currentUserId: String,
+        username: String
+    ) {
+        val state = _uiState.value
+        val profile = state.profile ?: return
+
+        if (
+            state.status != FindAlliesStatus.Found ||
+            state.isAdding ||
+            state.addAllyStatus == AddAllyStatus.Added ||
+            state.addAllyStatus == AddAllyStatus.AlreadyAdded
+        ) {
+            return
+        }
+
+        val cleanUsername = username.trim().removePrefix("@")
+
+        if (!cleanUsername.equals(state.query, ignoreCase = true)) {
+            return
+        }
+
+        if (profile.uid == currentUserId) {
+            return
+        }
+
+        _uiState.value = state.copy(
+            addAllyStatus = AddAllyStatus.Adding
+        )
+
+        viewModelScope.launch {
+            try {
+                val result = friendRepository.addFriend(
+                    ownerUid = currentUserId,
+                    friendUid = profile.uid
+                )
+
+                _uiState.value = _uiState.value.copy(
+                    addAllyStatus = when (result) {
+                        AddFriendResult.Added ->
+                            AddAllyStatus.Added
+
+                        AddFriendResult.AlreadyAdded ->
+                            AddAllyStatus.AlreadyAdded
+                    }
+                )
+            } catch (error: CancellationException) {
+                throw error
+            } catch (error: Exception) {
+                val status = when (error) {
+                    is FirebaseNetworkException ->
+                        AddAllyStatus.NetworkError
+
+                    is FirebaseFirestoreException -> {
+                        when (error.code) {
+                            FirebaseFirestoreException.Code.UNAVAILABLE,
+                            FirebaseFirestoreException.Code.DEADLINE_EXCEEDED ->
+                                AddAllyStatus.NetworkError
+
+                            else -> AddAllyStatus.Failed
+                        }
+                    }
+
+                    else -> AddAllyStatus.Failed
+                }
+
+                _uiState.value = _uiState.value.copy(
+                    addAllyStatus = status
+                )
+            }
+        }
+    }
+
     fun reset() {
+        if (_uiState.value.isAdding) {
+            return
+        }
+
         searchJob?.cancel()
         searchJob = null
         _uiState.value = FindAlliesUiState()

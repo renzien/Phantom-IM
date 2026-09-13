@@ -13,8 +13,21 @@ enum class FindAlliesStatus {
     Failed
 }
 
+enum class AddAllyStatus {
+    Idle,
+    Adding,
+    Added,
+    AlreadyAdded,
+    NetworkError,
+    Failed
+}
+
 data class FindAlliesUiState(
     val status: FindAlliesStatus = FindAlliesStatus.Idle,
     val query: String = "",
-    val profile: UserProfile? = null
-)
+    val profile: UserProfile? = null,
+    val addAllyStatus: AddAllyStatus = AddAllyStatus.Idle
+) {
+    val isAdding: Boolean
+        get() = addAllyStatus == AddAllyStatus.Adding
+}
