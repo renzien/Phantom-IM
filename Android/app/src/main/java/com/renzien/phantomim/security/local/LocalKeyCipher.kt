@@ -29,7 +29,8 @@ class LocalKeyCipher(
 
     suspend fun encrypt(
         recordId: String,
-        plaintext: ByteArray
+        plaintext: ByteArray,
+        createKeyIfMissing: Boolean = true
     ): ByteArray = withContext(Dispatchers.IO) {
         val associatedData = createAssociatedData(recordId)
 
@@ -37,7 +38,7 @@ class LocalKeyCipher(
 
         cipher.init(
             Cipher.ENCRYPT_MODE,
-            getKey(createIfMissing = true)
+            getKey(createIfMissing = createKeyIfMissing)
         )
 
         cipher.updateAAD(associatedData)
