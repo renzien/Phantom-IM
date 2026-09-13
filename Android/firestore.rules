@@ -70,8 +70,26 @@ service cloud.firestore {
       allow list, update, delete: if false;
     }
 
-    match /{document=**} {
-      allow read, write: if false;
+    match /users/{ownerUid}/friends/{friendUid} {
+      function isOwner() {
+        return signedIn() && request.auth.uid == ownerUid;
+      }
+
+      allow get, list: if isOwner();
+
+      allow create: if isOwner()
+        && ownerUid != friendUid
+        && exists(profilePath(ownerUid))
+        && exists(profilePath(friendUid))
+        && request.resource.data.keys().hasAll(['uid', 'addedAt'])
+        && request.resource.data.keys().hasOnly(['uid', 'addedAt'])
+        && request.resource.data.uid == friendUid
+        && request.resource.data.addedAt is timestamp
+        && request.resource.data.addedAt == request.time;
+
+      allow update: if false;
+
+      allow delete: if isOwner();
     }
   }
 }
