@@ -38,6 +38,7 @@ import com.renzien.phantomim.ui.components.PhantomButton
 fun HomeScreen(
     username: String,
     onFindAlliesClick: () -> Unit,
+    onAlliesClick: () -> Unit,
     onSignOutClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -116,6 +117,14 @@ fun HomeScreen(
                 Column(
                     modifier = Modifier.fillMaxWidth()
                 ) {
+                    PhantomButton(
+                        text = stringResource(R.string.allies_title),
+                        onClick = onAlliesClick,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
                     PhantomButton(
                         text = stringResource(R.string.find_allies_title),
                         onClick = onFindAlliesClick,

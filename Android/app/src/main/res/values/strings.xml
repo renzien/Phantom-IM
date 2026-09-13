@@ -111,4 +111,14 @@
     <string name="find_allies_already_added">This ally is already in your contacts.</string>
     <string name="find_allies_add_failed">Unable to add this ally. Please try again.</string>
     <string name="find_allies_search_again">Your search has changed. Tap SEARCH to update the result.</string>
+
+    <string name="allies_title">ALLIES</string>
+    <string name="allies_refresh">REFRESH</string>
+    <string name="allies_loading">LOADING ALLIES...</string>
+    <string name="allies_load_more">LOAD MORE</string>
+    <string name="allies_loading_more">LOADING MORE...</string>
+    <string name="allies_retry">RETRY</string>
+    <string name="allies_empty_title">NO ALLIES YET</string>
+    <string name="allies_empty_description">Use FIND ALLIES from your inbox to add a contact.</string>
+    <string name="allies_load_failed">Unable to load your allies. Please try again.</string>
 </resources>
